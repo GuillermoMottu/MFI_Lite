@@ -1,0 +1,367 @@
+{
+  "info": {
+    "name": "MaterialFlow Intelligence Lite — IES v2.0",
+    "description": "Colección completa para evaluar MaterialFlow Intelligence Lite en CTRL+HACK 2.0. Base URL: http://localhost:8000. Swagger UI disponible en http://localhost:8000/docs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "correlation_id",
+      "value": "",
+      "type": "string",
+      "description": "Se llena automáticamente al ejecutar /api/demo/run"
+    }
+  ],
+  "item": [
+    {
+      "name": "🚀 Demo",
+      "description": "Flujo completo cross-agent. Empezar aquí.",
+      "item": [
+        {
+          "name": "GET Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/health",
+            "description": "Verificar que el API está activo"
+          }
+        },
+        {
+          "name": "POST Ejecutar Demo Completo",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/demo/run",
+            "description": "Ejecuta el flujo cross-agent de 9 pasos. Todos los eventos comparten el mismo correlation_id. Tiempo: ~2-3 segundos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.correlation_id) {",
+                  "  pm.collectionVariables.set('correlation_id', json.correlation_id);",
+                  "  console.log('correlation_id guardado:', json.correlation_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET Estado del Demo (KPIs)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/demo/status",
+            "description": "Devuelve KPIs en tiempo real: stock, OEE, risk_score, buffer_pending, pérdida evitada."
+          }
+        },
+        {
+          "name": "POST Demo Offline Narrativa",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/demo/run-offline-narrative",
+            "description": "Escenario Edge automatizado: Cloud Down → Edge detecta → Buffer SQLite → Cloud Up → Replay FIFO. Un solo botón para la demo completa de Edge Computing."
+          }
+        },
+        {
+          "name": "POST Reset Demo",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/demo/reset",
+            "description": "Limpia todos los eventos, buffer SQLite y resetea estado. Listo para nueva demo."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📋 Eventos IES v2.0",
+      "description": "Consulta y stream de eventos en formato IES v2.0",
+      "item": [
+        {
+          "name": "GET Listar Eventos (últimos 50)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", ""],
+              "query": [
+                { "key": "limit", "value": "50" },
+                { "key": "module_id", "value": "", "disabled": true },
+                { "key": "event_type", "value": "", "disabled": true }
+              ]
+            },
+            "description": "Filtra por module_id (ej: erp_material_planning) o event_type (ej: stock_risk_detected)"
+          }
+        },
+        {
+          "name": "GET Cadena Causal (por correlation_id)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/events/chain?correlation_id={{correlation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "events", "chain"],
+              "query": [{ "key": "correlation_id", "value": "{{correlation_id}}" }]
+            },
+            "description": "Devuelve todos los eventos vinculados al correlation_id del último run. Muestra la cadena causal completa ERP → Prod → AI/ML."
+          }
+        },
+        {
+          "name": "GET SSE Stream (tiempo real)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/events/stream",
+            "description": "Server-Sent Events. Abrir en navegador o usar EventSource en JS. Ping de keepalive cada 15s."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏭 ERP Agent",
+      "description": "erp_gestion_empresarial — Gestión empresarial de materiales",
+      "item": [
+        {
+          "name": "POST Pronosticar Demanda",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/erp/predict-demand",
+            "description": "Emite: material_demand_forecasted. Actualiza daily_demand en estado global."
+          }
+        },
+        {
+          "name": "POST Detectar Riesgo de Stock",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/erp/optimize-stock-levels",
+            "description": "Emite: stock_risk_detected (si stock < punto de reorden). Severity: high o critical."
+          }
+        },
+        {
+          "name": "POST Generar Orden de Compra Urgente",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/erp/generate-purchase-order",
+            "description": "Emite: urgent_purchase_order_created. Severity: critical. Incluye proveedor, lead time y costo total MXN."
+          }
+        },
+        {
+          "name": "POST Sincronizar Datos ERP",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/erp/sync-erp-data",
+            "description": "Emite: erp_inventory_synced. Sincronización incremental con resolución de conflictos."
+          }
+        },
+        {
+          "name": "GET Estado ERP",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/erp/status",
+            "description": "Stock actual, demanda diaria, punto de reorden, órdenes activas."
+          }
+        },
+        {
+          "name": "GET Historial de Stock",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/erp/stock-history",
+            "description": "Array de puntos {timestamp, stock, reorder_point} para graficar evolución temporal."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ Producción Agent",
+      "description": "produccion_avanzada — Planificación y optimización de línea",
+      "item": [
+        {
+          "name": "POST Planificar Producción Automáticamente",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/production/plan-automatically",
+            "description": "Emite: production_plan_adjusted. Ajusta plan según stock disponible y OEE."
+          }
+        },
+        {
+          "name": "POST Optimizar Flujo de Producción",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/production/optimize-flow",
+            "description": "Emite: production_flow_optimized. Reduce cycle_time y previene idle_minutes."
+          }
+        },
+        {
+          "name": "POST Calcular Impacto OEE",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/production/calculate-oee",
+            "description": "Emite: oee_impact_calculated. OEE = Disponibilidad × Rendimiento × Calidad."
+          }
+        },
+        {
+          "name": "POST Detectar Idle por Material",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/production/detect-idle",
+            "description": "Emite: material_related_idle_risk_detected si stock < umbral crítico. Ejecutado desde Edge."
+          }
+        },
+        {
+          "name": "GET Datos del Edge",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/production/collect-data",
+            "description": "Señales del Edge: stock, demanda, OEE, piezas/min, cycle_time."
+          }
+        },
+        {
+          "name": "GET Tasa de Consumo",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/production/consumption-rate",
+            "description": "Tasa de consumo actual en tiempo real."
+          }
+        },
+        {
+          "name": "GET Estado Producción",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/production/status",
+            "description": "Plan ajustado, OEE actual, idle_minutes_prevented."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤖 AI/ML Agent",
+      "description": "ai_ml_industrial — Inteligencia artificial y machine learning industrial",
+      "item": [
+        {
+          "name": "POST Detectar Desviación de Proceso",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/aiml/detect-deviation",
+            "description": "Emite: material_lifecycle_risk_detected. Risk score ≥ 75 garantizado en demo. Severity: high/critical."
+          }
+        },
+        {
+          "name": "POST Identificar Cuellos de Botella",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/aiml/identify-bottlenecks",
+            "description": "Emite: material_bottleneck_identified. Severity: critical. Punto de escalación máxima del flujo."
+          }
+        },
+        {
+          "name": "POST Generar Modelo Digital Twin",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/aiml/digital-twin",
+            "description": "Emite: operational_recommendation_generated. 2 escenarios: act_now vs wait_24h con análisis de riesgo."
+          }
+        },
+        {
+          "name": "POST Entrenar Modelo de Riesgo",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/aiml/train-model",
+            "description": "Emite: material_risk_model_updated. Accuracy y F1-score del modelo entrenado."
+          }
+        },
+        {
+          "name": "GET Señales Edge Actuales",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/aiml/signals",
+            "description": "5 señales: stockout_hours, oee, consumption_rate, idle_risk, cycle_time."
+          }
+        },
+        {
+          "name": "POST Ejecutar Inferencia Edge",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/aiml/edge-inference",
+            "description": "Isolation Forest heurístico local. Si risk_score > 0.72: emite evento o bufferiza si cloud offline."
+          }
+        },
+        {
+          "name": "GET Estado Inferencia Edge",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/aiml/inference-status",
+            "description": "Última inferencia: 5 señales, risk_score, threshold (0.72), severity. Para el panel Edge del frontend."
+          }
+        },
+        {
+          "name": "GET Estado AI/ML",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/aiml/status",
+            "description": "Risk score actual, pérdida evitada MXN, último bottleneck detectado."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📡 Offline / Edge Buffer",
+      "description": "Escenario de Edge Computing sin conectividad a la nube",
+      "item": [
+        {
+          "name": "POST Simular Cloud Down",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/offline/simulate-cloud-down",
+            "description": "Desconecta el Cloud. Edge sigue operando. Nuevos eventos se bufferizan en edge_buffer.db (SQLite)."
+          }
+        },
+        {
+          "name": "POST Simular Stock Bajo (120 uds)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/offline/simulate-low-stock",
+            "description": "Fuerza stock a 120 unidades. Útil para activar riesgo crítico en la demo."
+          }
+        },
+        {
+          "name": "POST Detectar Idle (con Cloud Down)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/production/detect-idle",
+            "description": "Con cloud_down activo, este evento se bufferiza en SQLite en lugar de publicarse en cloud."
+          }
+        },
+        {
+          "name": "GET Estado del Buffer",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/api/offline/buffer-status",
+            "description": "Eventos pendientes en buffer, cloud_connected, eventos ya replayados."
+          }
+        },
+        {
+          "name": "POST Restaurar Cloud (Cloud Up)",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/offline/simulate-cloud-up",
+            "description": "Restaura conexión. Ejecutar /replay después para sincronizar el buffer."
+          }
+        },
+        {
+          "name": "POST Replay Buffer → Cloud",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/api/offline/replay",
+            "description": "Publica los eventos del buffer SQLite al cloud en orden FIFO. Deduplicación por event_id (PK). buffer_pending → 0."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+services:
+  cloud-api:
+    build: ./cloud-api
+    container_name: cloud-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - api-data:/tmp
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      cloud-api:
+        condition: service_healthy
+
+  # redis:  # Opcional — SSE funciona sin Redis para el demo
+  #   image: redis:7-alpine
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+
+volumes:
+  api-data:
