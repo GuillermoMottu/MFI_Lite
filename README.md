@@ -106,6 +106,35 @@ docker compose up --build
 | `GET` | `/api/aiml/inference-status` | Última inferencia con señales y score |
 | `GET` | `/api/aiml/status` | Risk score, pérdida evitada, último bottleneck |
 
+### Operacion PA
+| Metodo | URL | Descripcion |
+|---|---|---|
+| `GET` | `/api/recommendations/` | Lista recomendaciones operativas persistidas |
+| `GET` | `/api/recommendations/active` | Devuelve la recomendacion pendiente prioritaria |
+| `GET` | `/api/recommendations/decisions` | Lista decisiones auditables del PA |
+| `POST` | `/api/recommendations/{id}/approve` | Aprueba recomendacion, emite IES y crea PO draft |
+| `POST` | `/api/recommendations/{id}/reject` | Rechaza recomendacion con comentario |
+| `GET` | `/api/purchase-orders/` | Lista ordenes de compra operativas |
+| `PATCH` | `/api/purchase-orders/{po_id}` | Edita proveedor, cantidad, fecha requerida o comentario |
+| `POST` | `/api/purchase-orders/{po_id}/approve` | Aprueba PO operativa |
+| `GET` | `/api/suppliers/` | Lista catalogo activo de proveedores |
+| `GET` | `/api/suppliers/recommended` | Recomienda proveedor por `strategy=urgency` o `strategy=cost` |
+| `POST` | `/api/suppliers/` | Crea proveedor |
+| `PATCH` | `/api/suppliers/{supplier_id}` | Actualiza proveedor |
+| `DELETE` | `/api/suppliers/{supplier_id}` | Da de baja proveedor |
+| `GET` | `/api/materials/` | Lista inventario multi-SKU con riesgo calculado |
+| `GET` | `/api/materials/?status=critical` | Filtra inventario por `critical`, `low_stock` o `normal` |
+| `PATCH` | `/api/materials/{sku_id}` | Actualiza stock, demanda, punto de reorden o criticidad |
+| `POST` | `/api/materials/{sku_id}/recommendation` | Genera recomendacion operativa para SKU en riesgo |
+| `GET` | `/api/production/backlog` | Lista jobs de produccion con riesgo de material |
+| `GET` | `/api/production/backlog/impacted` | Lista jobs impactados por bajo stock o criticidad |
+| `GET` | `/api/production/backlog/suggestion` | Sugiere nueva secuencia material-aware |
+| `POST` | `/api/production/backlog/resequence` | Aplica reprogramacion y emite evento IES |
+| `PATCH` | `/api/production/backlog/{job_id}` | Edita prioridad, secuencia, estado o inicio requerido |
+| `GET` | `/api/audit/` | Historial unificado con filtros por entidad, SKU o correlation_id |
+| `GET` | `/api/audit/export?format=json` | Exporta auditoria en JSON |
+| `GET` | `/api/audit/export?format=csv` | Exporta auditoria en CSV |
+
 ### Offline / Edge
 | Método | URL | Descripción |
 |---|---|---|

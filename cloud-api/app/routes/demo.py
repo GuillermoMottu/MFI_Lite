@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from auth.middleware import require_role
 from services.demo_orchestrator import run_full_demo, reset_demo
 from edge.edge_state import set_cloud_connected
 from edge.production_edge_tools import detect_material_related_idle_time
@@ -12,7 +13,7 @@ router = APIRouter(prefix="/api/demo", tags=["Demo"])
 
 
 @router.post("/run")
-def run_demo():
+def run_demo(current_user: dict = require_role("pa", "supervisor", "admin")):
     events = run_full_demo()
     return {
         "status": "completed",
@@ -23,7 +24,7 @@ def run_demo():
 
 
 @router.post("/reset")
-def reset():
+def reset(current_user: dict = require_role("admin")):
     reset_demo()
     return {"status": "reset_ok", "message": "Demo state cleared. Ready to run again."}
 
@@ -52,7 +53,7 @@ def demo_status():
 
 
 @router.post("/run-offline-narrative")
-def run_offline_narrative():
+def run_offline_narrative(current_user: dict = require_role("supervisor", "admin")):
     """Escenario Edge completo en un solo request:
     1. Cloud Down → 2. Edge detecta + bufferiza → 3. Cloud Up → 4. Replay FIFO."""
 

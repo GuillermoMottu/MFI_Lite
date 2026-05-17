@@ -4,6 +4,8 @@ from agents.production_agent import ProductionAgent
 from agents.aiml_agent import AIMLAgent
 from edge.production_edge_tools import detect_material_related_idle_time
 from services.event_bus import clear_demo_events, publish_system_event
+from services.operational_store import reset_operational_data
+from services.recommendation_service import create_material_risk_recommendation
 from edge.sqlite_buffer import clear_buffer
 from state import _snapshot_stock
 import state as app_state
@@ -90,7 +92,16 @@ def run_full_demo() -> list[dict]:
 
     # Paso 6: AI/ML identify_bottlenecks
     _emit_step(6, *DEMO_STEPS[5][1:], correlation_id, True)
-    _collect(aiml.identify_bottlenecks(correlation_id=correlation_id))
+    bottleneck_result = aiml.identify_bottlenecks(correlation_id=correlation_id)
+    _collect(bottleneck_result)
+    bottleneck_event = bottleneck_result[0] if isinstance(bottleneck_result, tuple) else None
+    if bottleneck_event:
+        create_material_risk_recommendation(
+            correlation_id=correlation_id,
+            source_event_id=bottleneck_event.event_id,
+            impact_mxn=bottleneck_event.data["estimated_impact_mxn"],
+            risk_score=bottleneck_event.data["risk_score"],
+        )
     _emit_step(6, *DEMO_STEPS[5][1:], correlation_id, False)
 
     # Paso 7: Producción optimize_production_flow
@@ -117,4 +128,5 @@ def run_full_demo() -> list[dict]:
 def reset_demo() -> None:
     clear_demo_events()
     clear_buffer()
+    reset_operational_data()
     app_state.reset_state()

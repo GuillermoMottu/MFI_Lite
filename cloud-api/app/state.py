@@ -30,7 +30,10 @@ state: dict = {
     "events_replayed": 0,
     "last_replay_at": None,
     "purchase_orders": [],
+    "operational_purchase_orders": [],
     "last_bottleneck": None,
+    "recommendations": [],
+    "decision_logs": [],
     # Step indicator: número de paso activo durante el demo (0 = idle)
     "current_demo_step": 0,
     # Última inferencia Edge con señales y score
@@ -73,7 +76,10 @@ def reset_state() -> None:
         "events_replayed": 0,
         "last_replay_at": None,
         "purchase_orders": [],
+        "operational_purchase_orders": [],
         "last_bottleneck": None,
+        "recommendations": [],
+        "decision_logs": [],
         "current_demo_step": 0,
         "last_inference": None,
         "stock_history": [],

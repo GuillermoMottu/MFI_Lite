@@ -2,9 +2,11 @@ interface HeaderProps {
   cloudConnected: boolean
   bufferPending: number
   demoRunning: boolean
+  user?: { display_name: string; role: string } | null
+  onLogout?: () => void
 }
 
-export default function Header({ cloudConnected, bufferPending, demoRunning }: HeaderProps) {
+export default function Header({ cloudConnected, bufferPending, demoRunning, user, onLogout }: HeaderProps) {
   return (
     <header className="bg-slate-900 border-b border-slate-700 px-6 py-3 flex items-center justify-between">
       <div>
@@ -42,7 +44,27 @@ export default function Header({ cloudConnected, bufferPending, demoRunning }: H
             Buffer: {bufferPending} pendientes
           </span>
         )}
+
+        {user && (
+          <div className="flex items-center gap-2">
+            <span className="bg-cyan-950 border border-cyan-700 text-cyan-100 text-xs px-2 py-1 rounded-full">
+              {user.display_name} {roleLabel(user.role)}
+            </span>
+            <button
+              onClick={onLogout}
+              className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs px-2 py-1 rounded-lg"
+            >
+              Salir
+            </button>
+          </div>
+        )}
       </div>
     </header>
   )
+}
+
+function roleLabel(role: string): string {
+  if (role === 'pa') return 'PA'
+  if (role === 'supervisor') return 'Supervisor'
+  return 'Admin'
 }

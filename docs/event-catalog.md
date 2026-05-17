@@ -45,6 +45,9 @@ Todos los eventos cumplen el estándar IES v2.0: `platform_version: "2.0.0"`, `t
 | `material_demand_forecasted` | `predict_demand` | Llamada directa o paso 1 del demo | `medium` | `sku_id`, `avg_daily_consumption_units`, `horizon_days`, `demand_factor`, `predicted_units`, `confidence` |
 | `stock_risk_detected` | `optimize_stock_levels` | Stock < punto de reorden | `high` / `critical` | `sku_id`, `current_stock_units`, `reorder_point_units`, `estimated_stockout_hours`, `risk_detected`, `lead_time_days` |
 | `urgent_purchase_order_created` | `generate_purchase_order` | Stock en riesgo crítico | `critical` | `purchase_order_id`, `quantity_units`, `unit_cost_mxn`, `total_cost_mxn`, `provider`, `provider_lead_time_days`, `urgency` |
+| `purchase_order_draft_created` | `approve_recommendation` | PA aprueba recomendación operativa | `medium` | `po_id`, `sku_id`, `supplier_id`, `supplier_name`, `quantity_units`, `unit_cost_mxn`, `total_cost_mxn`, `required_date`, `estimated_arrival_date`, `status`, `source_recommendation_id` |
+| `purchase_order_updated` | `update_purchase_order` | PA edita proveedor, cantidad, fecha o comentario | `low` | `po_id`, `sku_id`, `supplier_id`, `supplier_name`, `quantity_units`, `unit_cost_mxn`, `total_cost_mxn`, `required_date`, `estimated_arrival_date`, `status`, `source_recommendation_id` |
+| `purchase_order_approved` | `approve_purchase_order` | PA aprueba una orden operativa | `high` | `po_id`, `sku_id`, `supplier_id`, `supplier_name`, `quantity_units`, `unit_cost_mxn`, `total_cost_mxn`, `required_date`, `estimated_arrival_date`, `status`, `source_recommendation_id` |
 | `erp_inventory_synced` | `sync_erp_data_local` | Sincronización programada | `low` | `synced_records`, `conflicts_resolved`, `sync_type`, `sync_duration_ms` |
 
 ### Producción — `produccion_avanzada`
@@ -55,6 +58,7 @@ Todos los eventos cumplen el estándar IES v2.0: `platform_version: "2.0.0"`, `t
 | `production_flow_optimized` | `optimize_production_flow` | Paso 7 del demo | `medium` | `line_id`, `bottleneck_removed`, `cycle_time_before_s`, `cycle_time_after_s`, `throughput_improvement_pct`, `idle_minutes_prevented` |
 | `oee_impact_calculated` | `calculate_oee_impact` | Llamada directa | `medium` | `line_id`, `availability`, `performance`, `quality`, `oee_current`, `oee_target`, `production_loss_units` |
 | `material_related_idle_risk_detected` | `detect_material_related_idle_time` | Paso 4 del demo (Edge) | `high` | `line_id`, `idle_risk_detected`, `stockout_hours`, `idle_minutes_at_risk`, `estimated_loss_mxn`, `recommendation` |
+| `production_backlog_resequenced` | `resequence_backlog` | PA aplica secuencia material-aware | `medium` / `high` | `strategy`, `jobs_total`, `jobs_impacted`, `critical_jobs`, `applied_by`, `updated_jobs` |
 
 ### AI/ML — `ai_ml_industrial`
 
@@ -63,6 +67,8 @@ Todos los eventos cumplen el estándar IES v2.0: `platform_version: "2.0.0"`, `t
 | `material_lifecycle_risk_detected` | `detect_process_deviation` | Paso 5 del demo | `high` / `critical` | `sku_id`, `risk_score_pct`, `deviation_type`, `z_score`, `contributing_factors`, `recommended_action` |
 | `material_bottleneck_identified` | `identify_bottlenecks` | Paso 6 del demo | `critical` | `line_id`, `bottleneck_location`, `bottleneck_type`, `throughput_loss_pct`, `root_cause`, `estimated_resolution_min` |
 | `operational_recommendation_generated` | `generate_digital_twin_model` | Paso 9 del demo | `high` | `asset_id`, `scenario_act_now`, `scenario_wait_24h`, `recommended_scenario`, `confidence`, `risk_if_wait` |
+| `operational_recommendation_approved` | `approve_recommendation` | PA aprueba recomendación operativa | `high` | `recommendation_id`, `recommendation_type`, `status`, `decided_by`, `decision_comment`, `sku_id`, `line_id`, `estimated_impact_mxn` |
+| `operational_recommendation_rejected` | `reject_recommendation` | PA rechaza recomendación operativa con comentario | `medium` | `recommendation_id`, `recommendation_type`, `status`, `decided_by`, `decision_comment`, `sku_id`, `line_id`, `estimated_impact_mxn` |
 | `material_risk_model_updated` | `train_material_risk_model` | Llamada directa | `low` | `model_id`, `training_samples`, `accuracy`, `f1_score`, `features_used`, `model_version` |
 
 ### Edge — `edge_material_runtime`
