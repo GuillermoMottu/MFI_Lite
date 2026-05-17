@@ -1,15 +1,19 @@
+import time
 import uuid
 from typing import Optional
+
+from .users import User
 
 _TOKENS: dict[str, dict] = {}
 
 
-def create_token(user) -> str:
+def create_token(user: User) -> str:
     token = str(uuid.uuid4())
     _TOKENS[token] = {
         "username": user.username,
         "display_name": user.display_name,
         "role": user.role,
+        "created_at": time.time(),
     }
     return token
 
